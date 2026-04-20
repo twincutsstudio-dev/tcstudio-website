@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TC Studio, Studio de montage vidéo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400&family=Syne:wght@600&display=swap" rel="stylesheet" />
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8GP76HPNWW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-8GP76HPNWW');
+  </script>
+
+  <style>
+    /* ─── RESET & VARIABLES ───────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-dark:    #3D2F24;
+      --white-warm: #FAF3EC;
+      --linen:      #EDE5D8;
+      --card:       #F7F2EB;
+      --text-main:  #2E2118;
+      --text-muted: #9E8878;
+      --card-body:  #6B5547;
+      --accent:     #C4956A;
+      --border:     #DDD5C8;
+      --footer-bg:  #2E2118;
+      --footer-sep: #4A3728;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--bg-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 64px;
+      border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--white-warm);
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--white-warm); }
+
+    .btn-nav {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      background: var(--accent);
+      color: var(--white-warm);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .btn-nav:hover { opacity: 0.88; }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--white-warm);
+      transition: all 0.3s;
+    }
+
+    /* ─── HERO ────────────────────────────────────────────────── */
+    #hero {
+      background: var(--bg-dark);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 0 6% 0 8%;
+      padding-top: 64px;
+      gap: 60px;
+    }
+
+    .hero-right {
+      position: relative;
+      height: 480px;
+      border-radius: 16px;
+      overflow: visible;
+    }
+
+    .hero-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      background: #1A1410;
+      border: 0.5px solid #3A2E24;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-screen-main {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 80px;
+      background: linear-gradient(160deg, #1E1710 0%, #130F0A 60%, #0E0B07 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen-watermark {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #2E2418;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .hero-timeline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: #110E0A;
+      border-top: 0.5px solid #2E2418;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .timeline-track {
+      height: 10px;
+      border-radius: 3px;
+      background: #2E2418;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .playhead {
+      position: absolute;
+      bottom: 0;
+      left: 38%;
+      width: 1.5px;
+      height: 80px;
+      background: #C4956A;
+      opacity: 0.8;
+      animation: playheadMove 3s ease-in-out infinite;
+    }
+
+    @keyframes playheadMove {
+      0%   { left: 10%; }
+      50%  { left: 75%; }
+      100% { left: 10%; }
+    }
+
+    .float-card-1 {
+      position: absolute;
+      top: 32px;
+      left: -32px;
+      background: #FAF3EC;
+      border-radius: 12px;
+      padding: 14px 18px;
+      width: 210px;
+      z-index: 10;
+      border: 0.5px solid #E8DFD0;
+      animation: floatY 4s ease-in-out infinite;
+    }
+
+    .float-card-2 {
+      position: absolute;
+      bottom: 48px;
+      left: -24px;
+      background: #2E4A3A;
+      border-radius: 12px;
+      padding: 14px 18px;
+      width: 190px;
+      z-index: 10;
+      border: 0.5px solid #3D6050;
+      animation: floatY 4s ease-in-out infinite 1.3s;
+    }
+
+    .float-card-3 {
+      position: absolute;
+      bottom: 32px;
+      right: -28px;
+      background: #2E2118;
+      border-radius: 12px;
+      padding: 16px 20px;
+      width: 200px;
+      z-index: 10;
+      border: 0.5px solid #3A2E24;
+      animation: floatY 4s ease-in-out infinite 2.6s;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 24px;
+    }
+
+    #hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 56px;
+      color: var(--white-warm);
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .hero-subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .hero-stats {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      background: var(--accent);
+      color: var(--white-warm);
+      border: none;
+      border-radius: 6px;
+      padding: 14px 32px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .hero-micro {
+      display: block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* ─── SHARED ──────────────────────────────────────────────── */
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ─── DIFFÉRENCIATION ─────────────────────────────────────── */
+    #differenciation {
+      background: #EDE5D8;
+      padding: 80px 8%;
+      border-top: 1px solid #DDD5C8;
+    }
+
+    .diff-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 20px;
+    }
+
+    .diff-headline {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 32px;
+      color: #2E2118;
+      line-height: 1.25;
+      max-width: 640px;
+      margin-bottom: 8px;
+    }
+
+    .diff-asterisk {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 52px;
+    }
+
+    .diff-blocs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .diff-bloc {
+      border-top: 2px solid var(--accent);
+      padding: 24px 0 0;
+    }
+
+    .diff-bloc-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #2E2118;
+      margin-bottom: 10px;
+    }
+
+    .diff-bloc-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: #6B5547;
+      line-height: 1.65;
+    }
+
+    /* ─── OFFRES ──────────────────────────────────────────────── */
+    #offres {
+      background: var(--linen);
+      padding: 80px 8%;
+    }
+
+    #offres .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 38px;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .offres-subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin-bottom: 48px;
+    }
+
+    .offres-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .offre-card {
+      background: var(--card);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 28px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .offre-card--green { border-left-color: #7A9E8A; }
+
+    .offre-card:hover { background: #E8DFD0; transform: translateY(-2px); }
+
+    .offre-badge {
+      display: inline-block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: var(--text-main);
+      color: var(--white-warm);
+      padding: 4px 10px;
+      border-radius: 4px;
+      align-self: flex-start;
+    }
+
+    .offre-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-main);
+    }
+
+    .offre-tagline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .offre-desc {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--card-body);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .offre-price {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--accent);
+    }
+
+    .offre-cta-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    /* ─── SIMULATEUR ──────────────────────────────────────────── */
+    #simulateur {
+      background: var(--white-warm);
+      padding: 80px 8%;
+    }
+
+    #simulateur .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 38px;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .sim-subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 52px;
+      align-items: start;
+    }
+
+    .sim-questions {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .sim-question {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sim-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sim-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sim-option {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-main);
+      background: var(--linen);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .sim-option:hover:not(.selected) { border-color: var(--text-muted); }
+
+    .sim-option.selected {
+      background: var(--text-main);
+      color: var(--white-warm);
+      border-color: var(--text-main);
+    }
+
+    .sim-note {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: none;
+    }
+
+    .sim-note.visible { display: block; }
+
+    /* Checkboxes */
+    .sim-checkboxes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sim-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .sim-checkbox-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--linen);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+
+    .sim-checkbox-item input[type="checkbox"]:checked {
+      background: var(--text-main);
+      border-color: var(--text-main);
+    }
+
+    .sim-checkbox-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 4px;
+      width: 5px;
+      height: 8px;
+      border: 1.5px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .sim-checkbox-item span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .sim-opts-hint {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Estimation panel */
+    .sim-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: sticky;
+      top: 84px;
+    }
+
+    .sim-panel {
+      background: var(--text-main);
+      border-radius: 12px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sim-panel-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .sim-price {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 36px;
+      color: var(--white-warm);
+      line-height: 1.15;
+    }
+
+    .sim-revisions-note {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .sim-price-note {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-top: 2px;
+      border-top: 0.5px solid rgba(255,255,255,0.06);
+    }
+
+    .btn-sim {
+      display: block;
+      width: 100%;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      background: var(--accent);
+      color: var(--white-warm);
+      border: none;
+      border-radius: 6px;
+      padding: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+
+    .btn-sim:hover { opacity: 0.88; }
+
+    .sim-trust {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ─── ACCORDÉON ───────────────────────────────────────────── */
+    .accordion { border-radius: 8px; overflow: hidden; }
+
+    .accordion-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 12px 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: left;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .accordion-trigger:hover { color: var(--text-main); }
+
+    .accordion-arrow {
+      transition: transform 0.3s;
+      flex-shrink: 0;
+      font-size: 10px;
+    }
+
+    .accordion.open .accordion-arrow { transform: rotate(180deg); }
+
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .accordion.open .accordion-body { max-height: 700px; }
+
+    .accordion-content {
+      background: var(--linen);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .accordion-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .accordion-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .accordion-select-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .accordion-select {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-main);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      outline: none;
+    }
+
+    .accordion-select:focus { border-color: var(--accent); }
+
+    .accordion-discount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--accent);
+      display: none;
+    }
+
+    .accordion-discount.visible { display: block; }
+
+    .accordion-result {
+      padding-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .accordion-adjusted-price {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      color: var(--accent);
+      min-height: 32px;
+    }
+
+    .accordion-budget-msg {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      display: none;
+    }
+
+    .accordion-budget-msg.visible { display: block; }
+    .accordion-budget-msg a { color: var(--accent); text-decoration: none; }
+
+    .btn-accordion {
+      width: 100%;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      background: var(--accent);
+      color: var(--white-warm);
+      border: none;
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: none;
+    }
+
+    .btn-accordion.visible { display: block; }
+    .btn-accordion:hover { opacity: 0.88; }
+
+    /* ─── ABONNEMENTS ─────────────────────────────────────────── */
+    #abonnements {
+      background: var(--bg-dark);
+      padding: 80px 8%;
+    }
+
+    #abonnements .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 38px;
+      color: var(--white-warm);
+      margin-bottom: 12px;
+    }
+
+    .abo-subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin-bottom: 48px;
+    }
+
+    .abo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 32px;
+    }
+
+    .abo-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .abo-spacer { height: 28px; }
+
+    .abo-featured-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      text-align: center;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .abo-card {
+      background: var(--footer-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .abo-card--featured {
+      border-top: 2px solid var(--accent);
+    }
+
+    .abo-badge {
+      display: inline-block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 0.5px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 4px;
+      align-self: flex-start;
+    }
+
+    .abo-volume {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--white-warm);
+    }
+
+    .abo-desc {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .abo-price {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--accent);
+      padding-top: 8px;
+      border-top: 0.5px solid rgba(255,255,255,0.06);
+    }
+
+    .abo-footer-note {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .abo-card { cursor: pointer; }
+    .abo-card:hover { opacity: 0.92; }
+
+    .abo-toggle-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--accent);
+      padding: 0;
+      text-align: left;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .abo-toggle-btn .abo-arrow {
+      display: inline-block;
+      transition: transform 0.3s ease;
+      font-size: 10px;
+    }
+
+    .abo-card.details-open .abo-arrow { transform: rotate(180deg); }
+
+    .abo-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .abo-card.details-open .abo-details { max-height: 300px; }
+
+    .abo-details-list {
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 0.5px solid rgba(255,255,255,0.06);
+      margin-top: 8px;
+    }
+
+    .abo-details-item {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: #6B5547;
+      display: flex;
+      gap: 8px;
+    }
+
+    .abo-details-check {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ─── BANDEAU LOGOS ───────────────────────────────────────── */
+    #bandeau-logos {
+      background: var(--linen);
+      padding: 40px 8%;
+    }
+
+    .bandeau-titre {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .bandeau-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 56px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── AVIS ────────────────────────────────────────────────── */
+    #avis {
+      background: var(--linen);
+      padding: 80px 8%;
+    }
+
+    #avis .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 38px;
+      color: var(--text-main);
+      margin-bottom: 20px;
+    }
+
+    .avis-intro {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: #6B5547;
+      max-width: 600px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    .avis-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .avis-card {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-left: 3px solid var(--text-muted);
+      border-radius: 12px;
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 200px;
+    }
+
+    .avis-quote {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: #6B5547;
+      line-height: 1.65;
+      font-style: italic;
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .avis-sep { border: none; border-top: 0.5px solid var(--border); margin: 16px 0; }
+
+    .avis-author { display: flex; flex-direction: column; gap: 3px; }
+
+    .avis-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: #2E2118;
+    }
+
+    .avis-role {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: #9E8878;
+      margin-top: 2px;
+    }
+
+    .avis-card-featured { max-width: 480px; margin: 16px auto 0; padding: 28px 32px; min-height: auto; }
+    .avis-card-featured .avis-quote { font-size: 14px; }
+
+    .avis-card--wide {
+      grid-column: 1 / -1;
+      border-left-color: #7A9E8A;
+      width: 100%;
+    }
+
+    /* ─── PORTFOLIO ───────────────────────────────────────────── */
+    #portfolio {
+      background: var(--white-warm);
+      padding: 80px 8%;
+    }
+
+    #portfolio .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 38px;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .portfolio-subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .portfolio-card {
+      background: var(--linen);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .portfolio-card:hover { opacity: 0.9; transform: scale(1.01); }
+
+    .portfolio-thumb {
+      position: relative;
+    }
+
+    .portfolio-info { padding: 16px; }
+
+    .portfolio-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .portfolio-type {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ─── CONTACT ─────────────────────────────────────────────── */
+    #contact {
+      background: var(--bg-dark);
+      padding: 80px 8%;
+    }
+
+    #contact .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 38px;
+      color: var(--white-warm);
+      margin-bottom: 12px;
+    }
+
+    .contact-subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: start;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .form-group { display: flex; flex-direction: column; }
+
+    .form-group input,
+    .form-group textarea {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--card-body);
+      color: var(--white-warm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      padding: 12px 0;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-muted); }
+
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+
+    .form-group textarea {
+      resize: none;
+      min-height: 90px;
+      line-height: 1.6;
+    }
+
+    .btn-contact {
+      display: inline-block;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      background: var(--accent);
+      color: var(--white-warm);
+      border: none;
+      border-radius: 6px;
+      padding: 14px 36px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+      align-self: flex-start;
+    }
+
+    .btn-contact:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .contact-trust {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 12px;
+    }
+
+    .contact-detail { display: flex; align-items: center; gap: 12px; }
+
+    .contact-detail svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .contact-detail a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .contact-detail a:hover { color: var(--white-warm); }
+
+    /* ─── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      background: var(--footer-bg);
+      padding: 40px 8% 28px;
+    }
+
+    .footer-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    .footer-brand-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--white-warm);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .footer-brand-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .footer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      list-style: none;
+    }
+
+    .footer-nav a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-nav a:hover { color: var(--white-warm); }
+
+    .footer-contact-col { font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 12px; color: var(--text-muted); }
+
+    .footer-contact-col a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .footer-contact-col a:hover { color: var(--white-warm); }
+
+    .footer-bottom {
+      border-top: 0.5px solid var(--footer-sep);
+      padding-top: 20px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      color: var(--card-body);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .footer-legal {
+      color: var(--card-body);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-legal:hover { color: var(--white-warm); }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .offres-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 24px; }
+
+      .nav-right {
+        display: none;
+        position: fixed;
+        top: 64px; left: 0; right: 0;
+        background: var(--bg-dark);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px 24px;
+        gap: 20px;
+        border-bottom: 0.5px solid rgba(255,255,255,0.06);
+        z-index: 199;
+      }
+
+      .nav-right.open { display: flex; }
+
+      .nav-links { flex-direction: column; gap: 0; width: 100%; }
+      .nav-links li { width: 100%; }
+      .nav-links a { display: block; padding: 14px 0; border-bottom: 0.5px solid rgba(255,255,255,0.04); font-size: 14px; }
+
+      .nav-toggle { display: flex; }
+
+      #hero { grid-template-columns: 1fr; padding: 80px 6% 60px; gap: 32px; min-height: auto; }
+      #hero h1 { font-size: 36px; }
+      .hero-subtitle { font-size: 15px; }
+      .hero-right { height: 360px; margin-top: 0; overflow: visible; }
+      .hero-screen { height: 100%; border-radius: 12px; }
+      .float-card-1 { top: -20px; left: -8px; right: auto; width: 175px; z-index: 20; padding: 11px 14px; }
+      .float-card-2 { bottom: 12px; left: -8px; right: auto; width: 155px; z-index: 20; padding: 11px 14px; }
+      .float-card-3 { bottom: 12px; right: -8px; left: auto; width: 155px; z-index: 20; padding: 11px 14px; }
+      .playhead { display: block; }
+      .hero-timeline { height: 70px; padding: 10px 12px; }
+      .timeline-track { height: 8px; }
+      .process-grid { grid-template-columns: 1fr !important; gap: 20px; }
+
+      #differenciation,
+      #offres,
+      #simulateur,
+      #abonnements,
+      #bandeau-logos,
+      #avis,
+      #portfolio,
+      #contact { padding: 60px 6%; }
+
+      #bandeau-logos { padding: 36px 6%; }
+
+      .diff-headline { font-size: 24px; }
+      .diff-blocs { grid-template-columns: 1fr; gap: 24px; }
+
+      .offres-grid { grid-template-columns: 1fr; gap: 16px; }
+
+      #offres .section-title,
+      #simulateur .section-title,
+      #abonnements .section-title,
+      #avis .section-title,
+      #portfolio .section-title,
+      #contact .section-title { font-size: 28px; }
+
+      .sim-layout { grid-template-columns: 1fr; gap: 40px; }
+      .sim-right { position: static; }
+
+      .abo-grid { grid-template-columns: 1fr; gap: 16px; }
+      .abo-spacer { display: none; }
+
+      .avis-grid { grid-template-columns: 1fr; gap: 12px; }
+      .avis-card-featured { max-width: 100%; margin-top: 12px; }
+      #process > div > div:nth-child(2) { grid-template-columns: 1fr; gap: 20px; }
+
+      .portfolio-grid { grid-template-columns: 1fr; gap: 16px; }
+
+      .contact-layout { grid-template-columns: 1fr; gap: 40px; }
+
+      footer { padding: 36px 6% 24px; }
+      .footer-cols { grid-template-columns: 1fr; gap: 24px; }
+
+      .bandeau-logos { gap: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ──────────────────────────────────────────────────── -->
+  <nav>
+    <a href="#hero" class="nav-logo">TC Studio</a>
+    <button class="nav-toggle" aria-label="Menu" id="navToggle">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-right" id="navRight">
+      <ul class="nav-links">
+        <li><a href="#hero">Accueil</a></li>
+        <li><a href="#offres">Offres</a></li>
+        <li><a href="#avis">Avis</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <a href="#simulateur" class="btn-nav">Démarrer un projet</a>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Studio de montage vidéo</p>
+      <h1>Vos rushs ont une histoire. On se charge de la raconter.</h1>
+      <p class="hero-subtitle">De la captation brute au contenu qui convertit, on monte, on livre, vous publiez. Première version sous 72h.</p>
+      <p class="hero-stats">4 ans d'expérience · 400+ projets · 60+ clients · 30+ campagnes</p>
+      <a href="#simulateur" class="btn-primary">Estimer mon projet →</a>
+      <span class="hero-micro">Sans engagement, réponse sous 24h</span>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-screen">
+        <div class="hero-screen-main">
+          <span class="screen-watermark">TC Studio</span>
+        </div>
+        <div class="hero-timeline">
+          <div class="timeline-track">
+            <div style="width:65%; background:#C4956A; opacity:0.7; height:100%; border-radius:3px;"></div>
+          </div>
+          <div class="timeline-track">
+            <div style="width:40%; margin-left:20%; background:#7A9E8A; opacity:0.6; height:100%; border-radius:3px;"></div>
+          </div>
+          <div class="timeline-track">
+            <div style="width:30%; margin-left:10%; background:#9E8878; opacity:0.5; height:100%; border-radius:3px;"></div>
+          </div>
+          <div class="playhead"></div>
+        </div>
+      </div>
+
+      <!-- Carte 1 — haut gauche -->
+      <div class="float-card-1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#C4956A;display:inline-block;flex-shrink:0;"></span><span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#2E2118;">400+ projets livrés</span></div><p style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#6B5547;line-height:1.4;">Corporate, voyage, UGC depuis 4 ans</p>
+      </div>
+
+      <!-- Carte 2 — bas gauche -->
+      <div class="float-card-2">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7A9E8A;display:inline-block;flex-shrink:0;"></span><span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#EAF3EE;">Première version</span></div><p style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;color:#FAF3EC;line-height:1.2;">sous 48h</p>
+      </div>
+
+      <!-- Carte 3 — bas droite -->
+      <div class="float-card-3">
+        <p style="font-family:'Space Grotesk',sans-serif;font-size:9px;color:#9E8878;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">Sans engagement</p><p style="font-family:'Syne',sans-serif;font-size:18px;font-weight:600;color:#FAF3EC;line-height:1.2;">Réponse<br>sous 24h</p><p style="font-family:'Space Grotesk',sans-serif;font-size:10px;color:#9E8878;margin-top:6px;">On prend le temps d'écouter</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DIFFÉRENCIATION ───────────────────────────────────────── -->
+  <section id="differenciation">
+    <div class="section-inner">
+      <p class="diff-eyebrow">Pourquoi TC Studio</p>
+      <h2 class="diff-headline">Les autres agences vous promettent 3 semaines. Nous vous livrons une première version en 48h.</h2>
+      <p class="diff-asterisk">* Délai standard formats courts. Projets complexes ou +20 min sur devis.</p>
+      <div class="diff-blocs">
+        <div class="diff-bloc">
+          <h3 class="diff-bloc-title">L'expert de votre secteur</h3>
+          <p class="diff-bloc-text">Corporate, voyage ou UGC, chaque projet est confié au monteur spécialisé dans votre univers. Pas un généraliste qui fait tout, un expert qui connaît vos codes.</p>
+        </div>
+        <div class="diff-bloc">
+          <h3 class="diff-bloc-title">Vous filmez, on livre</h3>
+          <p class="diff-bloc-text">Déposez vos rushs, on s'occupe du reste. Montage, étalonnage, sound design, vous recevez un fichier prêt à publier.</p>
+        </div>
+        <div class="diff-bloc">
+          <h3 class="diff-bloc-title">Volume garanti, budget maîtrisé</h3>
+          <p class="diff-bloc-text">Nos abonnements mensuels lissent votre production et votre budget. Plus de négociation projet par projet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── OFFRES ────────────────────────────────────────────────── -->
+  <section id="offres">
+    <div class="section-inner">
+      <h2 class="section-title">Nos offres</h2>
+      <p class="offres-subtitle">Cliquez sur une offre pour estimer votre projet directement.</p>
+      <div class="offres-grid">
+
+        <div class="offre-card" onclick="selectOffre('ugc')">
+          <span class="offre-badge">UGC Premium</span>
+          <h3 class="offre-title">UGC & contenu social</h3>
+          <p class="offre-tagline">Authenticité · Performance · 48h</p>
+          <p class="offre-desc">Accès à un réseau de 20+ créateurs sélectionnés. On monte, on adapte les formats (reels, stories, ads), on livre prêt à diffuser. Sous-titres inclus.</p>
+          <p class="offre-price">Dès 25 €</p>
+          <span class="offre-cta-link">Estimer mon projet →</span>
+        </div>
+
+        <div class="offre-card" onclick="selectOffre('voyage')">
+          <span class="offre-badge">Film de voyage</span>
+          <h3 class="offre-title">Film de voyage</h3>
+          <p class="offre-tagline">Émotion · Narration · Conversion</p>
+          <p class="offre-desc">Des films qui donnent envie de réserver avant même d'avoir lu la fiche destination. Étalonnage cinématographique, sound design sur mesure.</p>
+          <p class="offre-price">Dès 150 €</p>
+          <span class="offre-cta-link">Estimer mon projet →</span>
+        </div>
+
+        <div class="offre-card" onclick="selectOffre('corporate')">
+          <span class="offre-badge">Corporate B2B</span>
+          <h3 class="offre-title">Corporate & institutionnel</h3>
+          <p class="offre-tagline">Image · Crédibilité · Impact</p>
+          <p class="offre-desc">Interviews dirigeants, films institutionnels, contenus marque. Chaque montage est pensé pour asseoir votre positionnement.</p>
+          <p class="offre-price">Dès 180 €</p>
+          <span class="offre-cta-link">Estimer mon projet →</span>
+        </div>
+
+        <div class="offre-card offre-card--green" onclick="selectOffre('sur-mesure')">
+          <span class="offre-badge">Sur mesure</span>
+          <h3 class="offre-title">Vidéo produit & e-commerce</h3>
+          <p class="offre-tagline">ROI · Conversion · Image produit</p>
+          <p class="offre-desc">Chaque produit a son univers, chaque marque son impact. Du plaid artisanal à la boisson premium, le tarif s'adapte à votre marché et à ce qu'un bon montage peut vous rapporter.</p>
+          <p class="offre-price">Tarif sur mesure</p>
+          <span class="offre-cta-link">Parlons-en →</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SIMULATEUR ────────────────────────────────────────────── -->
+  <section id="simulateur">
+    <div class="section-inner">
+      <h2 class="section-title">Estimez votre projet</h2>
+      <p class="sim-subtitle">Répondez à 4 questions, obtenez une estimation immédiate.</p>
+
+      <div class="sim-layout">
+
+        <!-- Questions -->
+        <div class="sim-questions">
+
+          <!-- Q1 -->
+          <div class="sim-question">
+            <span class="sim-label">Quel type de projet ?</span>
+            <div class="sim-options">
+              <button class="sim-option" data-q="q1" data-val="ugc">UGC &amp; Social</button>
+              <button class="sim-option" data-q="q1" data-val="corporate">Corporate &amp; Institutionnel</button>
+              <button class="sim-option" data-q="q1" data-val="voyage">Film de voyage</button>
+            </div>
+          </div>
+
+          <!-- Q2 — conditionnel selon Q1 -->
+          <div class="sim-question" id="q2-section" style="display:none">
+            <span class="sim-label">Durée de la vidéo ?</span>
+            <div class="sim-options" id="q2-options"></div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="sim-question">
+            <span class="sim-label">Avez-vous vos rushs ?</span>
+            <div class="sim-options">
+              <button class="sim-option" data-q="q3" data-val="oui">Oui, prêts à envoyer</button>
+              <button class="sim-option" data-q="q3" data-val="non">Non, j'ai besoin d'une équipe de tournage</button>
+            </div>
+            <p class="sim-note" id="q3-note">Pas de problème, on mobilise nos équipes partenaires. Un devis tournage sera ajouté séparément.</p>
+          </div>
+
+          <!-- Q4 -->
+          <div class="sim-question">
+            <span class="sim-label">Fréquence ?</span>
+            <div class="sim-options">
+              <button class="sim-option" data-q="q4" data-val="ponctuel">Projet ponctuel</button>
+              <button class="sim-option" data-q="q4" data-val="few">Abonnement 2 à 5 vidéos/mois</button>
+              <button class="sim-option" data-q="q4" data-val="many">Abonnement 6+ vidéos/mois</button>
+            </div>
+          </div>
+
+          <!-- Options opt-out -->
+          <div class="sim-question">
+            <span class="sim-label">Options incluses</span>
+            <p class="sim-opts-hint">Décochez pour adapter le tarif</p>
+            <div class="sim-checkboxes">
+              <label class="sim-checkbox-item">
+                <input type="checkbox" id="opt-etalonnage" checked>
+                <span>Étalonnage colorimétrique inclus</span>
+              </label>
+              <label class="sim-checkbox-item">
+                <input type="checkbox" id="opt-sound" checked>
+                <span>Sound design &amp; mix audio inclus</span>
+              </label>
+              <label class="sim-checkbox-item" id="opt-subtitles-group" style="display:none">
+                <input type="checkbox" id="opt-subtitles" checked>
+                <span>Sous-titres animés inclus</span>
+              </label>
+              <label class="sim-checkbox-item" id="opt-formats-group" style="display:none">
+                <input type="checkbox" id="opt-formats" checked>
+                <span>Formats multiples (9:16, 1:1, 16:9)</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Estimation + accordéon -->
+        <div class="sim-right">
+
+          <div class="sim-panel">
+            <span class="sim-panel-label" id="sim-panel-label">Estimation</span>
+            <div class="sim-price" id="prix-estime">—</div>
+            <p class="sim-revisions-note">2 révisions incluses · Révision supplémentaire : +20% du projet</p>
+            <p class="sim-price-note">Estimation indicative · Devis précis sous 24h</p>
+            <button class="btn-sim" onclick="startProject()">Démarrer mon projet →</button>
+            <p class="sim-trust">Sans engagement · 100% confidentiel</p>
+          </div>
+
+          <div class="accordion" id="prixAccordion">
+            <button class="accordion-trigger" onclick="toggleAccordion()">
+              <span>Le prix ne vous convient pas ?</span>
+              <span class="accordion-arrow">▼</span>
+            </button>
+            <div class="accordion-body">
+              <div class="accordion-content">
+                <h4 class="accordion-title">Parlons de votre situation</h4>
+
+                <div class="accordion-group">
+                  <label class="accordion-select-label" for="sel-collab">Durée de collaboration envisagée</label>
+                  <select class="accordion-select" id="sel-collab">
+                    <option value="1">1 projet</option>
+                    <option value="0.9">1 à 3 mois (−10%)</option>
+                    <option value="0.8">Plus de 3 mois (−20%)</option>
+                  </select>
+                  <span class="accordion-discount" id="disc-collab"></span>
+                </div>
+
+                <div class="accordion-group">
+                  <label class="accordion-select-label" for="sel-volume">Volume de vidéos</label>
+                  <select class="accordion-select" id="sel-volume">
+                    <option value="1">1 à 3</option>
+                    <option value="1">4 à 9</option>
+                    <option value="0.85">10 et plus (−15%)</option>
+                  </select>
+                </div>
+
+                <div class="accordion-group">
+                  <label class="accordion-select-label" for="sel-brief">Avez-vous besoin d'un brief ?</label>
+                  <select class="accordion-select" id="sel-brief">
+                    <option value="1">Non, j'ai mon brief</option>
+                    <option value="1.15">Oui (+15%, rédaction incluse)</option>
+                  </select>
+                </div>
+
+                <div class="accordion-group">
+                  <label class="accordion-select-label" for="sel-budget">Votre budget communication mensuel</label>
+                  <select class="accordion-select" id="sel-budget">
+                    <option value="low">Moins de 500 €</option>
+                    <option value="mid">500 à 1500 €</option>
+                    <option value="high">Plus de 1500 €</option>
+                  </select>
+                </div>
+
+                <div class="accordion-result">
+                  <p class="accordion-adjusted-price" id="prix-ajuste"></p>
+                  <p class="accordion-budget-msg" id="budget-msg">
+                    Nos prix ne correspondent pas encore à votre budget, écrivez-nous, on trouvera une formule qui vous ressemble. <a href="mailto:contact@tcstudio.fr">contact@tcstudio.fr</a>
+                  </p>
+                  <button class="btn-accordion" id="btn-valider" onclick="validerAccordion()">Valider et démarrer</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABONNEMENTS ───────────────────────────────────────────── -->
+  <section id="abonnements">
+    <div class="section-inner">
+      <h2 class="section-title">Produire sans y penser</h2>
+      <p class="abo-subtitle">Un volume mensuel garanti, un interlocuteur unique, zéro gestion de la post-production de votre côté.</p>
+      <div class="abo-grid">
+
+        <div class="abo-item">
+          <div class="abo-spacer"></div>
+          <div class="abo-card" onclick="selectAbonnement('Essentiel')">
+            <span class="abo-badge">Essentiel</span>
+            <p class="abo-volume">Jusqu'à 5 vidéos/mois</p>
+            <p class="abo-desc">Idéal pour maintenir une présence régulière sur vos réseaux.</p>
+            <p class="abo-price">À partir de 350 €/mois</p>
+            <button class="abo-toggle-btn" onclick="toggleAboDetails(event, this)">Voir les détails <span class="abo-arrow">▼</span></button>
+            <div class="abo-details">
+              <div class="abo-details-list">
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Jusqu'à 5 vidéos courtes (−90s) par mois</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Étalonnage + sound design inclus</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>2 révisions par vidéo</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Livraison sous 72h</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="abo-item">
+          <p class="abo-featured-label">LE PLUS CHOISI</p>
+          <div class="abo-card abo-card--featured" onclick="selectAbonnement('Pro')">
+            <span class="abo-badge">Pro</span>
+            <p class="abo-volume">Jusqu'à 12 vidéos/mois</p>
+            <p class="abo-desc">Le bon équilibre entre volume, réactivité et qualité.</p>
+            <p class="abo-price">À partir de 750 €/mois</p>
+            <button class="abo-toggle-btn" onclick="toggleAboDetails(event, this)">Voir les détails <span class="abo-arrow">▼</span></button>
+            <div class="abo-details">
+              <div class="abo-details-list">
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Jusqu'à 12 vidéos/mois mix formats</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Formats multiples inclus (9:16, 1:1, 16:9)</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Sous-titres animés inclus</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Chef de projet dédié</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="abo-item">
+          <div class="abo-spacer"></div>
+          <div class="abo-card" onclick="selectAbonnement('Studio')">
+            <span class="abo-badge">Studio</span>
+            <p class="abo-volume">Volume sur mesure</p>
+            <p class="abo-desc">Pour les marques et agences qui produisent en continu.</p>
+            <p class="abo-price">Sur devis</p>
+            <button class="abo-toggle-btn" onclick="toggleAboDetails(event, this)">Voir les détails <span class="abo-arrow">▼</span></button>
+            <div class="abo-details">
+              <div class="abo-details-list">
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Volume sur mesure</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>SLA personnalisé</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Accès réseau créateurs UGC</span></div>
+                <div class="abo-details-item"><span class="abo-details-check">✓</span><span>Interlocuteur unique</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <p class="abo-footer-note">Tous les abonnements incluent 2 révisions par vidéo, étalonnage et sound design. Sans engagement minimum.</p>
+    </div>
+  </section>
+
+  <!-- ─── BANDEAU LOGOS ─────────────────────────────────────────── -->
+  <section id="bandeau-logos">
+    <div class="section-inner">
+      <p class="bandeau-titre">Ils nous ont fait confiance</p>
+      <div class="bandeau-logos logos-grid">
+        <img data-src="ops_clean_logo.jpeg" alt="Logo OpsClean — client TC Studio" style="height:36px; opacity:0.6; filter:grayscale(100%); object-fit:contain;" />
+        <img data-src="LOGO_SON_LIFE_3f6b4042-55cc-4614-a2e7-019c532ef876.webp" alt="Logo Sonlife — marque de boisson premium" style="height:36px; opacity:0.6; filter:grayscale(100%); object-fit:contain;" />
+        <img data-src="acm.png" alt="Logo ACM Laboratoire Dermatologique" style="height:36px; opacity:0.6; filter:grayscale(100%); object-fit:contain;" />
+        <img data-src="PHOTO-2025-10-22-00-26-28.jpg" alt="Logo 80 Jours Voyages — agence de voyage" style="height:36px; opacity:0.6; filter:grayscale(100%); object-fit:contain;" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PORTFOLIO ─────────────────────────────────────────────── -->
+  <section id="portfolio">
+    <div class="section-inner">
+      <h2 class="section-title">Quelques réalisations</h2>
+      <p class="portfolio-subtitle">Cliquez pour voir la vidéo complète.</p>
+      <div class="portfolio-grid">
+
+        <a class="portfolio-card" href="https://youtu.be/sBDFzBKCdUw" target="_blank">
+          <div class="portfolio-thumb">
+            <img src="https://img.youtube.com/vi/sBDFzBKCdUw/hqdefault.jpg" style="width:100%; aspect-ratio:16/9; object-fit:cover;" />
+            <span style="position:absolute; top:10px; left:10px; background:#7A9E8A; color:#FAF3EC; font-family:'Space Grotesk',sans-serif; font-size:9px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 8px; border-radius:4px;">FILM DE VOYAGE</span>
+          </div>
+          <div class="portfolio-info">
+            <p class="portfolio-title">Hawaï, Film de voyage</p>
+            <p class="portfolio-type">80 Jours Voyages</p>
+          </div>
+        </a>
+
+        <a class="portfolio-card" href="https://youtube.com/shorts/znvbDzOg04Q" target="_blank">
+          <div class="portfolio-thumb">
+            <img src="https://img.youtube.com/vi/znvbDzOg04Q/hqdefault.jpg" style="width:100%; aspect-ratio:9/16; object-fit:cover; max-height:280px;" />
+            <span style="position:absolute; top:10px; left:10px; background:#2E2118; color:#FAF3EC; font-family:'Space Grotesk',sans-serif; font-size:9px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 8px; border-radius:4px;">UGC PREMIUM</span>
+          </div>
+          <div class="portfolio-info">
+            <p class="portfolio-title">Crème Azéane, A/B testing de hooks UGC</p>
+            <p class="portfolio-type">ACM Laboratoire Dermatologique</p>
+          </div>
+        </a>
+
+        <a class="portfolio-card" href="https://youtube.com/shorts/N5pIiTentig" target="_blank">
+          <div class="portfolio-thumb">
+            <img src="https://img.youtube.com/vi/N5pIiTentig/hqdefault.jpg" style="width:100%; aspect-ratio:9/16; object-fit:cover; max-height:280px;" />
+            <span style="position:absolute; top:10px; left:10px; background:#2E2118; color:#FAF3EC; font-family:'Space Grotesk',sans-serif; font-size:9px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 8px; border-radius:4px;">CORPORATE</span>
+          </div>
+          <div class="portfolio-info">
+            <p class="portfolio-title">Rachat d'entreprise, Personal branding</p>
+            <p class="portfolio-type">Adrien Aouate</p>
+          </div>
+        </a>
+
+        <a class="portfolio-card" href="https://youtube.com/shorts/m9uJKY-iqEM" target="_blank">
+          <div class="portfolio-thumb">
+            <img src="https://img.youtube.com/vi/m9uJKY-iqEM/hqdefault.jpg" style="width:100%; aspect-ratio:9/16; object-fit:cover; max-height:280px;" />
+            <span style="position:absolute; top:10px; left:10px; background:#C4956A; color:#FAF3EC; font-family:'Space Grotesk',sans-serif; font-size:9px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 8px; border-radius:4px;">MARQUE &amp; PRODUIT</span>
+          </div>
+          <div class="portfolio-info">
+            <p class="portfolio-title">L'histoire OpsClean, Qui veut être mon associé</p>
+            <p class="portfolio-type">OpsClean</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── AVIS ──────────────────────────────────────────────────── -->
+  <section id="avis">
+    <div class="section-inner">
+      <h2 class="section-title">Ce que disent nos clients</h2>
+      <p class="avis-intro">Nous avons débuté sur les plateformes freelance, Fiverr, Malt, les places de marché. Après plus de 400 projets et 4 ans, nous avons fait un choix : nous concentrer sur des collaborations plus ambitieuses, avec des clients qui savent où ils vont. Ce que vous lisez ci-dessous, ce sont des gens qui nous ont fait confiance avant même qu'on soit sélectifs.</p>
+      <div class="avis-grid">
+
+        <div class="avis-card">
+          <p class="avis-quote">Le travail correspond parfaitement à ce que je souhaitais. Toutes les demandes ont été prises en compte, avec une vraie touche créative. Livré plus vite que prévu.</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">Soltierno</span>
+            <span class="avis-role">Rénovateur d'intérieur · Client vérifié</span>
+          </div>
+        </div>
+
+        <div class="avis-card">
+          <p class="avis-quote">Collaboration fluide, post-production soignée. Le résultat correspond vraiment à ce qu'on avait en tête.</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">Sonlife</span>
+            <span class="avis-role">Marque de boisson premium · Suisse · Client vérifié</span>
+          </div>
+        </div>
+
+        <div class="avis-card">
+          <p class="avis-quote">Super expérience.</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">Sharify Agency</span>
+            <span class="avis-role">Court métrage · Client vérifié</span>
+          </div>
+        </div>
+
+        <div class="avis-card">
+          <p class="avis-quote">Très beau montage, vraiment à l'écoute. Le résultat reflète exactement ce qu'on voulait.</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">Raissanono</span>
+            <span class="avis-role">Youtubeuse tech · Client vérifié</span>
+          </div>
+        </div>
+
+        <div class="avis-card">
+          <p class="avis-quote">Disponible, réactif et à l'écoute du début à la fin. Merci pour le travail.</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">Louis Olivier</span>
+            <span class="avis-role">Agence Viral IA · UGC Premium · Client vérifié</span>
+          </div>
+        </div>
+
+        <div class="avis-card">
+          <p class="avis-quote">Super service, au top !</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">Uther33</span>
+            <span class="avis-role">Vidéos verticales IA · Client vérifié</span>
+          </div>
+        </div>
+
+        <div class="avis-card avis-card--wide avis-card-featured">
+          <p class="avis-quote">Le rendu est vraiment bien, l'esprit qu'on cherchait est là. L'équipe prend les retours en compte et les intègre avec précision.</p>
+          <hr class="avis-sep" />
+          <div class="avis-author">
+            <span class="avis-name">80 Jours Voyages</span>
+            <span class="avis-role">Agence de voyage · Client vérifié</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PROCESS ─────────────────────────────────────────────────── -->
+  <section id="process" style="background:#FAF3EC; padding: 80px 8%;">
+    <div style="max-width:1100px; margin:0 auto;">
+      <p style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#C4956A;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;">Processus</p>
+      <h2 style="font-family:'Syne',sans-serif;font-size:36px;font-weight:600;color:#2E2118;margin-bottom:48px;">Simple du début à la fin.</h2>
+      <div class="process-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;">
+        <div style="border-top:2px solid #C4956A;padding-top:24px;">
+          <p style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#2E2118;margin-bottom:10px;">01 — Vous envoyez vos rushs</p>
+          <p style="font-family:'Space Grotesk',sans-serif;font-size:13px;color:#6B5547;line-height:1.65;">On cadre ensemble le rendu attendu dès la réception de vos fichiers.</p>
+        </div>
+        <div style="border-top:2px solid #C4956A;padding-top:24px;">
+          <p style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#2E2118;margin-bottom:10px;">02 — Première version sous 48h</p>
+          <p style="font-family:'Space Grotesk',sans-serif;font-size:13px;color:#6B5547;line-height:1.65;">Vous recevez un premier montage. Vous avez deux allers-retours inclus pour affiner. On intègre vos retours avec précision.</p>
+        </div>
+        <div style="border-top:2px solid #C4956A;padding-top:24px;">
+          <p style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#2E2118;margin-bottom:10px;">03 — Livraison et paiement final</p>
+          <p style="font-family:'Space Grotesk',sans-serif;font-size:13px;color:#6B5547;line-height:1.65;">Le master validé vous est livré en haute qualité. Le solde (60%) est réglé à la livraison via lien de paiement sécurisé.</p>
+        </div>
+      </div>
+      <div style="background:#F0EAE0;border-radius:12px;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <p style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:#2E2118;margin-bottom:4px;">Paiement en deux fois, sans surprise.</p>
+          <p style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#9E8878;">40% à la commande pour lancer la production. 60% à la livraison du master validé.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#7A9E8A;display:inline-block;"></span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#6B5547;">Paiement sécurisé</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#7A9E8A;display:inline-block;"></span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#6B5547;">Facture pro incluse</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#7A9E8A;display:inline-block;"></span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#6B5547;">Virement ou carte</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CONTACT ───────────────────────────────────────────────── -->
+  <section id="contact">
+    <div class="section-inner">
+      <h2 class="section-title">Parlons de votre projet</h2>
+      <p class="contact-subtitle">Chaque collaboration commence par une discussion. Réponse sous 24h.</p>
+      <div class="contact-layout">
+
+        <form action="https://formspree.io/f/xgopdjdy" method="POST" id="contactForm">
+          <input type="hidden" name="_subject" id="form-subject" value="Nouveau projet TC Studio" />
+          <input type="hidden" name="type_projet" id="hidden_type" value="" />
+          <input type="hidden" name="duree" id="hidden_duree" value="" />
+          <input type="hidden" name="rushs" id="hidden_rushs" value="" />
+          <input type="hidden" name="frequence" id="hidden_frequence" value="" />
+          <input type="hidden" name="options" id="hidden_options" value="" />
+          <input type="hidden" name="estimation" id="hidden_prix" value="" />
+          <div class="form-group">
+            <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
+          </div>
+          <div class="form-group">
+            <input type="email" id="email" name="email" placeholder="Email" required />
+          </div>
+          <div class="form-group">
+            <textarea id="message" name="message" placeholder="Votre message..." rows="4" required></textarea>
+          </div>
+          <button type="submit" class="btn-contact">Envoyer ma demande</button>
+          <p class="contact-trust">Sans engagement · Réponse sous 24h</p>
+        </form>
+
+        <div class="contact-info">
+          <div class="contact-detail">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <a href="mailto:contact@tcstudio.fr">contact@tcstudio.fr</a>
+          </div>
+          <div class="contact-detail">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.79 19.79 19.79 0 01.06 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+            <a href="tel:+33641382611">+33 6 41 38 26 11</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-cols">
+      <div>
+        <span class="footer-brand-name">TC Studio</span>
+        <span class="footer-brand-sub">Montage vidéo</span>
+      </div>
+      <ul class="footer-nav">
+        <li><a href="#hero">Accueil</a></li>
+        <li><a href="#offres">Offres</a></li>
+        <li><a href="#avis">Avis</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="footer-contact-col">
+        <a href="mailto:contact@tcstudio.fr">contact@tcstudio.fr</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 TC Studio, Tous droits réservés</span>
+      <span>·</span>
+      <a href="#" class="footer-legal">Mentions légales</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────
+    const state = {
+      q1: null,
+      q2: null,
+      q3: null,
+      q4: null,
+      opts: { etalonnage: true, sound: true, subtitles: true, formats: true }
+    };
+
+    // ── Prix de base par type + durée ─────────────────────────────
+    const PRICE_MATRIX = {
+      ugc:       { court: 45,  standard: 120, long: 200 },
+      corporate: { court: 180, moyen: 350,    long: 600 },
+      voyage:    { court: 150, moyen: 320,    long: 550 }
+    };
+
+    // ── Options Q2 selon Q1 ────────────────────────────────────────
+    const Q2_OPTIONS = {
+      ugc: [
+        { val: 'court',    label: 'Moins de 90s' },
+        { val: 'standard', label: '90s à 3 min'  },
+        { val: 'long',     label: 'Plus de 3 min' }
+      ],
+      corporate: [
+        { val: 'court', label: 'Moins de 5 min' },
+        { val: 'moyen', label: '5 à 10 min'     },
+        { val: 'long',  label: 'Plus de 10 min'  }
+      ],
+      voyage: [
+        { val: 'court', label: 'Moins de 3 min' },
+        { val: 'moyen', label: '3 à 8 min'      },
+        { val: 'long',  label: 'Plus de 8 min'   }
+      ]
+    };
+
+    const TYPE_LABELS = {
+      ugc: 'UGC & Social',
+      corporate: 'Corporate & Institutionnel',
+      voyage: 'Film de voyage'
+    };
+
+    // ── GA4 simulateur first use flag ──────────────────────────────
+    let simulateurUsed = false;
+
+    // ── Calcul du prix ─────────────────────────────────────────────
+    function calcPrice() {
+      if (!state.q1 || !state.q2) return null;
+      const matrix = PRICE_MATRIX[state.q1];
+      if (!matrix || !matrix[state.q2]) return null;
+
+      let p = matrix[state.q2];
+
+      // Fréquence
+      if (state.q4 === 'few')  p *= 0.9;
+      if (state.q4 === 'many') p *= 0.8;
+
+      // Options opt-out
+      if (!state.opts.etalonnage) p *= 0.85;
+      if (!state.opts.sound)      p *= 0.90;
+      if (!state.opts.subtitles && (state.q1 === 'ugc' || state.q1 === 'corporate')) p *= 0.92;
+      if (!state.opts.formats    && state.q1 === 'ugc') p *= 0.88;
+
+      return Math.round(p);
+    }
+
+    function updatePrice() {
+      const p = calcPrice();
+      const labelEl = document.getElementById('sim-panel-label');
+      const priceEl = document.getElementById('prix-estime');
+
+      // Label abonnement
+      if (state.q4 === 'few' || state.q4 === 'many') {
+        labelEl.textContent = 'Abonnement — prix mensuel estimé';
+      } else {
+        labelEl.textContent = 'Estimation';
+      }
+
+      if (p === null) {
+        priceEl.textContent = '—';
+      } else {
+        const min = Math.round(p * 0.9);
+        const max = Math.round(p * 1.1);
+        priceEl.innerHTML = 'Entre ' + min + '&nbsp;€<br>et ' + max + '&nbsp;€';
+        if (!simulateurUsed) {
+          simulateurUsed = true;
+          if (typeof gtag !== 'undefined') gtag('event', 'simulateur_utilise', { type: state.q1 });
+        }
+      }
+
+      updateAccordionPrice();
+    }
+
+    // ── Q2 conditionnel ────────────────────────────────────────────
+    function updateQ2Options() {
+      const section   = document.getElementById('q2-section');
+      const container = document.getElementById('q2-options');
+
+      if (!state.q1) { section.style.display = 'none'; return; }
+
+      state.q2 = null;
+      container.innerHTML = '';
+
+      Q2_OPTIONS[state.q1].forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className    = 'sim-option';
+        btn.dataset.q    = 'q2';
+        btn.dataset.val  = opt.val;
+        btn.textContent  = opt.label;
+        btn.addEventListener('click', () => {
+          container.querySelectorAll('.sim-option').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          state.q2 = opt.val;
+          updatePrice();
+        });
+        container.appendChild(btn);
+      });
+
+      section.style.display    = 'flex';
+      section.style.flexDirection = 'column';
+      section.style.gap        = '12px';
+    }
+
+    // ── Visibilité options conditionnelles ────────────────────────
+    function updateOptVisibility() {
+      const sub = document.getElementById('opt-subtitles-group');
+      const fmt = document.getElementById('opt-formats-group');
+      sub.style.display = (state.q1 === 'ugc' || state.q1 === 'corporate') ? 'flex' : 'none';
+      fmt.style.display = state.q1 === 'ugc' ? 'flex' : 'none';
+    }
+
+    // ── Écouteurs Q1, Q3, Q4 ──────────────────────────────────────
+    document.querySelectorAll('.sim-option[data-q="q1"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sim-option[data-q="q1"]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.q1 = btn.dataset.val;
+        updateQ2Options();
+        updateOptVisibility();
+        updatePrice();
+      });
+    });
+
+    document.querySelectorAll('.sim-option[data-q="q3"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sim-option[data-q="q3"]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.q3 = btn.dataset.val;
+        document.getElementById('q3-note').classList.toggle('visible', state.q3 === 'non');
+        updatePrice();
+      });
+    });
+
+    document.querySelectorAll('.sim-option[data-q="q4"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sim-option[data-q="q4"]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.q4 = btn.dataset.val;
+        updatePrice();
+      });
+    });
+
+    // ── Checkboxes ─────────────────────────────────────────────────
+    ['opt-etalonnage', 'opt-sound', 'opt-subtitles', 'opt-formats'].forEach(id => {
+      const key = id.replace('opt-', '');
+      document.getElementById(id).addEventListener('change', e => {
+        state.opts[key === 'opt-etalonnage' ? 'etalonnage' : key] = e.target.checked;
+        // remap key
+        const keyMap = { etalonnage: 'etalonnage', sound: 'sound', subtitles: 'subtitles', formats: 'formats' };
+        const stateKey = id === 'opt-etalonnage' ? 'etalonnage'
+                       : id === 'opt-sound'       ? 'sound'
+                       : id === 'opt-subtitles'   ? 'subtitles'
+                       : 'formats';
+        state.opts[stateKey] = e.target.checked;
+        updatePrice();
+      });
+    });
+
+    // ── Populate hidden fields ─────────────────────────────────────
+    function populateHiddenFields() {
+      const p = calcPrice();
+      const fourchette = p ? 'entre ' + Math.round(p * 0.9) + ' € et ' + Math.round(p * 1.1) + ' €' : 'non estimé';
+      const opts = [];
+      if (state.opts.etalonnage) opts.push('Étalonnage');
+      if (state.opts.sound) opts.push('Sound design');
+      if (state.opts.subtitles) opts.push('Sous-titres');
+      if (state.opts.formats) opts.push('Formats multiples');
+      document.getElementById('hidden_type').value = state.q1 || '';
+      document.getElementById('hidden_duree').value = state.q2 || '';
+      document.getElementById('hidden_rushs').value = state.q3 || '';
+      document.getElementById('hidden_frequence').value = state.q4 || '';
+      document.getElementById('hidden_options').value = opts.join(', ');
+      document.getElementById('hidden_prix').value = fourchette;
+      document.getElementById('form-subject').value = 'Nouveau projet TC Studio — ' + (TYPE_LABELS[state.q1] || 'non défini') + ' estimé ' + fourchette;
+    }
+
+    // ── Offres cards ───────────────────────────────────────────────
+    function selectOffre(type) {
+      if (typeof gtag !== 'undefined') gtag('event', 'click_offre', { offre: type });
+      if (type === 'sur-mesure') {
+        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      state.q1 = type;
+      document.querySelectorAll('.sim-option[data-q="q1"]').forEach(b => {
+        b.classList.toggle('selected', b.dataset.val === type);
+      });
+      updateQ2Options();
+      updateOptVisibility();
+      updatePrice();
+      document.getElementById('simulateur').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── Démarrer mon projet ────────────────────────────────────────
+    function startProject() {
+      const p = calcPrice();
+      const fourchette = p ? 'Entre ' + Math.round(p * 0.9) + ' € et ' + Math.round(p * 1.1) + ' €' : 'Non estimé';
+      const q2Labels = {
+        court: state.q1 === 'ugc' ? 'Moins de 90s' : state.q1 === 'corporate' ? 'Moins de 5 min' : 'Moins de 3 min',
+        standard: '90s à 3 min',
+        moyen: state.q1 === 'corporate' ? '5 à 10 min' : '3 à 8 min',
+        long: state.q1 === 'ugc' ? 'Plus de 3 min' : state.q1 === 'corporate' ? 'Plus de 10 min' : 'Plus de 8 min'
+      };
+      const q3Labels = { oui: 'Oui, prêts à envoyer', non: 'Non, besoin d\'une équipe de tournage' };
+      const q4Labels = { ponctuel: 'Projet ponctuel', few: 'Abonnement 2 à 5 vidéos/mois', many: 'Abonnement 6+ vidéos/mois' };
+      const opts = [];
+      if (state.opts.etalonnage) opts.push('Étalonnage');
+      if (state.opts.sound) opts.push('Sound design');
+      if (state.opts.subtitles) opts.push('Sous-titres');
+      if (state.opts.formats) opts.push('Formats multiples');
+      if (typeof gtag !== 'undefined') gtag('event', 'cta_demarrer', { type: state.q1, prix: fourchette });
+      document.getElementById('hidden_type').value = state.q1 || '';
+      document.getElementById('hidden_duree').value = state.q2 || '';
+      document.getElementById('hidden_rushs').value = state.q3 || '';
+      document.getElementById('hidden_frequence').value = state.q4 || '';
+      const optionsText = Array.from(document.querySelectorAll('.sim-checkbox:checked')).map(cb => cb.dataset.label).join(', ');
+      document.getElementById('hidden_options').value = optionsText;
+      const prix = document.getElementById('prix-estime').textContent;
+      document.getElementById('hidden_prix').value = prix;
+      document.getElementById('form-subject').value = 'Nouveau projet TC Studio, ' + (state.q1 || '') + ', estimation ' + prix;
+      const msgEl = document.getElementById('message');
+      const template = 'Bonjour,\n\nType de projet : ' + (TYPE_LABELS[state.q1] || '—') + '\nDurée : ' + (state.q2 ? q2Labels[state.q2] || state.q2 : '—') + '\nRushs disponibles : ' + (state.q3 ? q3Labels[state.q3] || state.q3 : '—') + '\nFréquence : ' + (state.q4 ? q4Labels[state.q4] || state.q4 : '—') + '\nOptions souhaitées : ' + (opts.length ? opts.join(', ') : '—') + '\nEstimation : ' + fourchette + '\n\nMon projet : ';
+      msgEl.value = template;
+      msgEl.focus();
+      msgEl.setSelectionRange(template.length, template.length);
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── Accordion ─────────────────────────────────────────────────
+    function toggleAccordion() {
+      document.getElementById('prixAccordion').classList.toggle('open');
+      updateAccordionPrice();
+    }
+
+    ['sel-collab', 'sel-volume', 'sel-brief', 'sel-budget'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updateAccordionPrice);
+    });
+
+    document.getElementById('sel-collab').addEventListener('change', function() {
+      const discEl = document.getElementById('disc-collab');
+      const map = { '0.9': '−10% appliqué', '0.8': '−20% appliqué' };
+      if (map[this.value]) { discEl.textContent = map[this.value]; discEl.classList.add('visible'); }
+      else                 { discEl.classList.remove('visible'); }
+    });
+
+    function updateAccordionPrice() {
+      const mainPrice = calcPrice();
+      const adjEl  = document.getElementById('prix-ajuste');
+      const msgEl  = document.getElementById('budget-msg');
+      const btnEl  = document.getElementById('btn-valider');
+
+      if (!mainPrice) {
+        adjEl.textContent = '';
+        msgEl.classList.remove('visible');
+        btnEl.classList.remove('visible');
+        return;
+      }
+
+      const collab   = parseFloat(document.getElementById('sel-collab').value);
+      const volume   = parseFloat(document.getElementById('sel-volume').value);
+      const brief    = parseFloat(document.getElementById('sel-brief').value);
+      const budget   = document.getElementById('sel-budget').value;
+      const adjusted = Math.round(mainPrice * collab * volume * brief);
+
+      adjEl.textContent = 'Votre tarif ajusté : ' + adjusted + ' €';
+
+      if (budget === 'low') {
+        msgEl.classList.add('visible');
+        btnEl.classList.remove('visible');
+      } else {
+        msgEl.classList.remove('visible');
+        btnEl.classList.add('visible');
+      }
+    }
+
+    function validerAccordion() {
+      populateHiddenFields();
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── Abonnements toggle details ─────────────────────────────────
+    function toggleAboDetails(event, btn) {
+      event.stopPropagation();
+      const card = btn.closest('.abo-card');
+      card.classList.toggle('details-open');
+    }
+
+    // ── Abonnements card click ─────────────────────────────────────
+    function selectAbonnement(nom) {
+      const msgEl = document.getElementById('message');
+      msgEl.value = 'Je suis intéressé(e) par l\'abonnement ' + nom + '.';
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+      if (typeof gtag !== 'undefined') gtag('event', 'click_abonnement', { formule: nom });
+    }
+
+    // ── Logos absolute paths ───────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+      const base = window.location.href.split('?')[0].replace(/[^\/]*$/, '');
+      document.querySelectorAll('.logos-grid img').forEach(function(img) {
+        const filename = img.getAttribute('data-src');
+        if (filename) {
+          img.src = base + filename;
+          img.onerror = function() { this.parentElement.style.display = 'none'; };
+        }
+      });
+    });
+
+    // ── Nav mobile ─────────────────────────────────────────────────
+    document.getElementById('navToggle').addEventListener('click', () => {
+      document.getElementById('navRight').classList.toggle('open');
+    });
+
+    document.querySelectorAll('.nav-links a, .btn-nav').forEach(a => {
+      a.addEventListener('click', () => document.getElementById('navRight').classList.remove('open'));
+    });
+
+    // ── Nav active highlight ───────────────────────────────────────
+    const navAnchors = document.querySelectorAll('.nav-links a');
+    const navObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navAnchors.forEach(a => {
+            a.style.color = a.getAttribute('href') === '#' + e.target.id ? 'var(--white-warm)' : '';
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    document.querySelectorAll('section[id]').forEach(s => navObs.observe(s));
+
+    // ── Contact form ───────────────────────────────────────────────
+    document.getElementById('contactForm').addEventListener('submit', () => {
+      if (typeof gtag !== 'undefined') gtag('event', 'formulaire_soumis');
+    });
+
+    // ── Scroll fade-in ─────────────────────────────────────────────
+    const fadeTargets = document.querySelectorAll(
+      '#hero h1, .hero-eyebrow, .hero-subtitle, .diff-bloc, .offre-card, .avis-card, .abo-card, .portfolio-card, .sim-panel'
+    );
+
+    const fadeObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+          fadeObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    fadeTargets.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(16px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      fadeObs.observe(el);
+    });
+
+    // ── Compteurs animés hero-stats ────────────────────────────────
+    function animateCounter(el, target, duration, suffix) {
+      let start = 0;
+      const step = target / (duration / 16);
+      const timer = setInterval(() => {
+        start += step;
+        if (start >= target) { start = target; clearInterval(timer); }
+        el.textContent = Math.floor(start) + suffix;
+      }, 16);
+    }
+
+    const statsObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          statsObs.unobserve(e.target);
+          const el = document.querySelector('.hero-stats');
+          if (!el) return;
+          let step = 0;
+          const counters = [
+            { val: 4,   suffix: ' ans d\'expérience · ' },
+            { val: 400, suffix: '+ projets · '          },
+            { val: 60,  suffix: '+ clients · '          },
+            { val: 30,  suffix: '+ campagnes'            }
+          ];
+          function runNext() {
+            if (step >= counters.length) return;
+            const c = counters[step];
+            const prev = counters.slice(0, step).map((x, i) =>
+              x.val + x.suffix
+            ).join('');
+            let cur = 0;
+            const total = c.val;
+            const dur = step === 0 ? 400 : step === 1 ? 800 : 600;
+            const inc = total / (dur / 16);
+            const timer = setInterval(() => {
+              cur += inc;
+              if (cur >= total) { cur = total; clearInterval(timer); step++; runNext(); }
+              el.textContent = prev + Math.floor(cur) + c.suffix;
+            }, 16);
+          }
+          runNext();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const heroEl = document.getElementById('hero');
+    if (heroEl) statsObs.observe(heroEl);
+
+    // ── Parallax souris cartes flottantes ─────────────────────────
+    const heroSection = document.getElementById('hero');
+    if (heroSection) {
+      heroSection.addEventListener('mousemove', (e) => {
+        const rect = heroSection.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        const c1 = document.querySelector('.float-card-1');
+        const c2 = document.querySelector('.float-card-2');
+        const c3 = document.querySelector('.float-card-3');
+        if (c1) c1.style.transform = `translate(${x * -12}px, ${y * -8}px)`;
+        if (c2) c2.style.transform = `translate(${x * 10}px,  ${y * -6}px)`;
+        if (c3) c3.style.transform = `translate(${x * -8}px,  ${y * 10}px)`;
+      });
+      heroSection.addEventListener('mouseleave', () => {
+        ['float-card-1','float-card-2','float-card-3'].forEach(cls => {
+          const el = document.querySelector('.' + cls);
+          if (el) el.style.transform = '';
+        });
+      });
+    }
+  </script>
+</body>
+</html>
